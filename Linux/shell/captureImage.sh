@@ -17,4 +17,35 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 #  
-#  
+#
+service networking start
+ftp -n<<!
+open 192.168.122.129
+user root 123456ma
+binary
+get 14.dd.gz
+close
+bye
+!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
