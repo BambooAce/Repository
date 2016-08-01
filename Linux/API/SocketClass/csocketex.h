@@ -4,45 +4,57 @@ class CsocketEX
 {
 public:
     CsocketEX();
-    ~CsocketEX();
-    virtual void SocketEX();
-    virtual void BindEX();
-    virtual void ListenEX();
-    virtual void AcceptEX();
-    virtual void ConnectEX();
-    virtual void SockoptEX();
+    virtual ~CsocketEX();
+    virtual void _SocketEX();
+    virtual void _BindEX();
+    virtual void _ListenEX();
+    virtual void _AcceptEX();
+    virtual void _ConnectEX();
+    virtual void _SockoptEX();
     void UnknowEX();
 };
 
 class SocketEX:public CsocketEX
 {
 public:
-    virtual void Socket_EX();
+    SocketEX(){}
+    ~SocketEX(){}
+    virtual void _SocketEX();
 };
 class BindEX:public CsocketEX
 {
 public:
-    virtual void Bind_EX();
+    BindEX(){}
+    ~BindEX(){}
+    virtual void _BindEX();
 };
 class ListenEX:public CsocketEX
 {
 public:
-    virtual void Listen_EX();
+    ListenEX(){}
+    ~ListenEX(){}
+    virtual void _ListenEX();
 };
 class AcceptEX:public CsocketEX
 {
 public:
-    virtual void Accept_EX();
+    AcceptEX(){}
+    ~AcceptEX(){}
+    virtual void _AcceptEX();
 };
 class ConnectEX:public CsocketEX
 {
 public:
-    virtual void Connect_EX();
+    ConnectEX(){}
+    ~ConnectEX(){}
+    virtual void _ConnectEX();
 };
 class SockoptEX:public CsocketEX
 {
 public:
-    virtual void Sockopt_EX();
+    SockoptEX(){}
+    ~SockoptEX(){}
+    virtual void _SockoptEX();
 };
 
 #endif // CSOCKETEX_H

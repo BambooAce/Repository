@@ -9,51 +9,77 @@ CsocketEX::~CsocketEX()
 {
 }
 
-void CsocketEX::SocketEX()
+void CsocketEX::_SocketEX()
+{
+    return;
+}
+
+void CsocketEX::_BindEX()
+{
+    return;
+}
+
+void CsocketEX::_ListenEX()
+{
+    return;
+}
+
+void CsocketEX::_AcceptEX()
 {
 }
 
-void CsocketEX::BindEX()
+void CsocketEX::_ConnectEX()
 {
+    return;
 }
 
-void CsocketEX::ListenEX()
+void CsocketEX::_SockoptEX()
 {
-}
-
-void CsocketEX::AcceptEX()
-{
-}
-
-void CsocketEX::ConnectEX()
-{
+    return;
 }
 
 void CsocketEX::UnknowEX()
 {
+    fprintf(stderr, "Unknow exception\n");
 }
 
 
-void SocketEX::SocketEX()
+void SocketEX::_SocketEX()
 {
+    CsocketEX::_SocketEX();
+    fprintf(stderr, "Build Socket error\n");
 }
 
 
-void BindEX::BindEX()
+void BindEX::_BindEX()
 {
+    CsocketEX::_BindEX();
+    fprintf(stderr, "Bind socket error\n");
 }
 
 
-void ListenEX::ListenEX()
+void ListenEX::_ListenEX()
 {
+    CsocketEX::_ListenEX();
+    fprintf(stderr, "Listen Socket error\n");
 }
 
 
-void AcceptEX::AcceptEX()
+void AcceptEX::_AcceptEX()
 {
+    CsocketEX::_AcceptEX();
+    fprintf(stderr, "Accept Socket error\n");
 }
 
 
-void ConnectEX::ConnectEX()
+void ConnectEX::_ConnectEX()
 {
+    CsocketEX::_ConnectEX();
+    fprintf(stderr, "Connect Socket error\n");
+}
+
+void SockoptEX::_SockoptEX()
+{
+    CsocketEX::_SockoptEX();
+    fprintf(stderr, "Sockopt Socket error\n");
 }

@@ -1,11 +1,7 @@
-#include "widget.h"
-#include <QApplication>
-
-int main(int argc, char *argv[])
+#include "csocket.h"
+#include "csocketex.h"
+int main()
 {
-    QApplication a(argc, argv);
-    Widget w;
-    w.show();
     
-    return a.exec();
+    return 0;
 }

@@ -1,9 +1,10 @@
 #include "csocket.h"
 #include "csocketex.h"
-#include <netinet/in.h>
 #include <arpa/inet.h>
 #include <string.h>
-Csocket::Csocket():_sockfd(-1),_port(0),strIP(""),len(sizeof(SA))
+#include <unistd.h>
+const socklen_t len = sizeof(SA);
+Csocket::Csocket():_sockfd(-1),_port(0),strIP("")
 {
 
 }
@@ -21,16 +22,16 @@ int Csocket::Socket(int domain, int type, int protocol)
     return _sockfd;
 }
 
-SA Csocket::Setsockaddr(short port, std::string IP)
+sockaddr_in Csocket::Setsockaddr(short port, std::string IP)
 {
     struct sockaddr_in addrin;
     addrin.sin_family = AF_INET;
     if(strcmp(IP.c_str(), "") == 0)
         addrin.sin_addr.s_addr = htonl(INADDR_ANY);
     else
-        inet_pton(AF_INET, IP.c_str(), addrin.sin_addr);
+        inet_pton(AF_INET, IP.c_str(), &(addrin.sin_addr));
     addrin.sin_port = htons(port);
-    return (SA)addrin;
+    return addrin;
 }
 
 void Csocket::Bind(const SA *sa)
@@ -50,7 +51,8 @@ void Csocket::Listen(int backlog)
 
 int Csocket::Accept(SA *sa)
 {
-    int clientfd = accept(_sockfd, sa, &len);
+    socklen_t salen = sizeof(SA);
+    int clientfd = accept(_sockfd, sa, &salen);
     if(clientfd <= 0)
     {
         throw AcceptEX();
@@ -76,4 +78,3 @@ void Csocket::Close()
     if(_sockfd>0)
         close(_sockfd);
 }
-
