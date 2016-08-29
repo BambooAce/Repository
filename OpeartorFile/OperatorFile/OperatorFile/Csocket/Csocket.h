@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #define SOCKET int
+#define SOCKET_ERROR -1
 #define INVALID_SOCKET -1
 #else
 #include <WinSock2.h>
@@ -15,6 +16,7 @@
 #endif
 class Csocket
 {
+	friend void select_func(Csocket &server);
 public:
 	Csocket(int type = SOCK_STREAM);
 	~Csocket(void);	
@@ -24,6 +26,8 @@ public:
 	void Connect();
 	void Bind();
 	void Close();
+	Csocket(const Csocket &cs);
+	Csocket &operator=(const Csocket &cs);
 private:
 	SOCKET sockfd;
 	sockaddr_in scr;
@@ -31,4 +35,5 @@ private:
 };
 bool CreateClient(Csocket &client, const int post, const char* addr);
 bool CreateServer(Csocket &server, const int post, const char* addr = "Any");
+
 #endif

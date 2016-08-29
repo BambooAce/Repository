@@ -2,14 +2,14 @@ CC=g++
 RM=rm -rf
 OPT=-D LINUX
 BIN=client server
-
+CS=./Csocket/Csocket.cpp
 all:$(BIN)
 
-client:Csocket.cpp client.cpp
+client:$(CS) client.cpp
 	$(CC) $(OPT) $^ -o $@
 	strip $@
 
-server:Csocket.cpp server.cpp
+server:$(CS) server.cpp
 	$(CC) $(OPT) $^ -o $@
 	strip $@
 

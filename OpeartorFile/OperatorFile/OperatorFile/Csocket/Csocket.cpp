@@ -92,7 +92,11 @@ void Csocket::Bind()
 
 SOCKET Csocket::Accept(sockaddr_in & clientaddr)
 {
+#ifdef LINUX
 	unsigned int addrlen = sizeof(clientaddr);
+#else
+	int addrlen = sizeof(clientaddr);
+#endif
 	SOCKET clientfd = accept(sockfd, (sockaddr*)&clientaddr, &addrlen);
 	if(clientfd == -1)
 	{
@@ -149,3 +153,88 @@ bool CreateServer(Csocket &server, const int post, const char* addr)
 		return false;
 }
 
+void select_func(Csocket& listenfd)
+{
+	SOCKET lisfd = listenfd.sockfd;
+	fd_set rset, allset;
+	FD_ZERO(&rset);
+	FD_ZERO(&allset);
+	FD_SET(lisfd, &allset);
+	int client[1024];
+	for(int i = 0; i < 1024; ++i)
+	{
+		client[i] = -1;
+	}
+	int maxi = -1;
+	SOCKET maxfd;
+	maxfd = lisfd;
+	int nready, n;
+	sockaddr_in clientaddr;
+#ifdef LINUX
+	unsigned int addrlen = sizeof(clientaddr);
+#else
+	int addrlen = sizeof(clientaddr);
+#endif
+	memset(&clientaddr, 0, addrlen);
+	for(;;)
+	{
+		struct timeval tval;
+		tval.tv_sec = 60;
+		tval.tv_usec = 60;
+		rset = allset;
+		nready = select(maxfd + 1, &rset, 0, 0, &tval);
+		if( SOCKET_ERROR == nready)
+		{
+			if(errno == EINTR)
+			{
+				continue;
+			}
+			listenfd.Close();
+			handle_error("Select");
+		}
+		else if(nready == FD_SETSIZE)
+		{
+			listenfd.Close();
+			handle_error("Too many client");
+		}
+		else if(0 == nready)
+		{
+			fprintf(stderr, "Time out\n");
+			continue;
+		}
+		else {
+		
+			if(FD_ISSET(lisfd, &rset))
+			{
+				SOCKET clientfd = listenfd.Accept(clientaddr);
+				for (n = 0; n < 1024; ++n)
+				{
+					if(-1 == client[n])
+					{
+						client[n] = clientfd;
+						break;
+					}
+				}
+				if(n == 1023)
+				{
+					listenfd.Close();
+					handle_error("Too many client");
+				}
+				FD_SET(clientfd, &allset);
+				maxi = maxi > n? maxi:n;
+				maxfd = maxfd > clientfd? maxfd:clientfd;
+				if(--nready <= 0)
+					continue;
+			}
+			for(int m = 0; m < maxi; ++m)
+			{
+				if ((client[m] > -1)&&FD_ISSET(client[m], &rset))
+				{
+					
+				
+				}
+			}
+		
+		}
+	}
+}
