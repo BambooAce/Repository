@@ -1,0 +1,160 @@
+ 数字签名技术及流程
+
+ 
+
+    数字签名的全过程分两大部分，即签名与验证。左侧为签名，右侧为验证过程。即发方将原文用哈希算法求得数字摘要，用签名私钥对数字摘要加密得数字签名，发方将原文与数字签名一起发送给接受方；收方验证签名，即用发方公钥解密数字签名，得出数字摘要；收方将原文采用同样哈希算法又得一新的数字摘要，将两个数字摘要进行比较，如果二者匹配，说明经数字签名的电子文件传输成功。 
+
+     1、数字签名的签名过程
+
+    数字签名的操作过程需要有发方的签名数字证书的私钥及其验证公钥。
+    具体过程如下：首先是生成被签名的电子文件（《电子签名法》中称数据电文），然后对电子文件用哈希算法做数字摘要，再对数字摘要用签名私钥做非对称加密，即做数字签名；之后是将以上的签名和电子文件原文以及签名证书的公钥加在一起进行封装，形成签名结果发送给收方，待收方验证。
+
+     2、数字签名的验证过程
+
+    接收方收到发方的签名结果后进行签名验证，其具体操作过程如下：
+    接收方收到数字签名的结果，其中包括数字签名、电子原文和发方公钥，即待验证的数据。接收方进行签名验证。验证过程是：接收方首先用发方公钥解密数字签名，导出数字摘要，并对电子文件原文做同样哈希算法得出一个新的数字摘要，将两个摘要的哈希值进行结果比较，相同签名得到验证，否则无效。这就做到了《电子签名法》中所要求的对签名不能改动，对签署的内容和形式也不能改动的要求。
+
+    3、数字签名的实现方法 
+
+    基本原理是将原文用对称密钥加密传输，而将对称密钥用收方公钥加密发送给对方。收方收到电子信封，用自己的私钥解密信封，取出对称密钥解密得原文。其详细过程如下：
+  （1）发方A将原文信息进行哈希运算，得一哈希值即数字摘要MD；
+  （2）发方A用自己的私钥PVA，采用非对称RSA算法，对数字摘要MD进行加密，即得数字签名DS；
+  （3）发方A用对称算法DES的对称密钥SK对原文信息、数字签名SD及发方A证书的公钥PBA采用对称算法加密，得加密信息E；
+  （4）发方用收方B的公钥PBB，采用RSA算法对对称密钥SK加密，形成数字信封DE，就好像将对称密钥SK装到了一个用收方公钥加密的信封里；
+  （5）发方A将加密信息E和数字信封DE一起发送给收方B；
+  （6）收方B接受到数字信封DE后，首先用自己的私钥PVB解密数字信封，取出对称密钥SK；
+  （7）收方B用对称密钥SK通过DES算法解密加密信息E，还原出原文信息、数字签名SD及发方A证书的公钥PBA；
+  （8）收方B验证数字签名，先用发方A的公钥解密数字签名得数字摘要MD；
+  （9）收方B同时将原文信息用同样的哈希运算，求得一个新的数字摘要MD；
+  （10）将两个数字摘要MD和MD进行比较，验证原文是否被修改。如果二者相等，说明数据没有被篡改，是保密传输的，签名是真实的；否则拒绝该签名。这样就做到了敏感信息在数字签名的传输中不被篡改，未经认证和授权的人，看不见原数据，起到了在数字签名传输中对敏感数据的保密作用。
+  
+  
+  
+  
+  
+  
+  申请证书
+
+SSL常用于身份验证、数据加密等应用中，要使用SSL，我们密码有自己的证书。数字证书一般要向专业的认证公司(如VeriSign)申请，并且都是收费的，某些情况下，我们只是想使用加密的数据通信，而不在乎认证，这时就可以自己制作一个证书，自己制作一个证书，有两种方式，一种是Self Signed,另一种是自己制作一个CA，然后由这个CA,来发布我们需要的证书。下面分别介绍这两个方法。
+生成Self Signed证书
+复制代码
+
+＃ 生成一个key，你的私钥,openssl会提示你输入一个密码，可以输入，也可以不输，
+＃ 输入的话，以后每次使用这个key的时候都要输入密码，安全起见，还是应该有一个密码保护
+> openssl genrsa -des3 -out selfsign.key 4096
+
+# 使用上面生成的key，生成一个certificate signing request (CSR)
+# 如果你的key有密码保护，openssl首先会询问你的密码，然后询问你一系列问题，
+# 其中Common Name(CN)是最重要的，它代表你的证书要代表的目标，如果你为网站申请的证书，就要添你的域名。
+> openssl req -new -key selfsign.key -out selfsign.csr
+
+# 生成Self Signed证书 selfsign.crt就是我们生成的证书了
+> openssl x509 -req -days 365 -in selfsign.csr -signkey selfsign.key -out selfsign.crt
+
+＃ 另外一个比较简单的方法就是用下面的命令，一次生成key和证书
+> openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout privateKey.key -out certificate.crt
+
+复制代码
+生成自己的CA (Certificate Authority)
+
+CA是证书的发布者，CA可以发布其他人的证书，把CA的证书加入系统信任的根证书后，由CA发布的证书也被系统所信任，所以，CA的key是必须小心保护的，一般都要加密保护，并且限制为root权限读写。
+复制代码
+
+＃ 生成CA的key
+> openssl genrsa -des3 -out ca.key 4096
+
+# 生成CA的证书
+> openssl req -new -x509 -days 365 -key ca.key -out ca.crt
+
+# 生成我们的key和CSR这两步与上面Self Signed中是一样的
+> openssl genrsa -des3 -out myserver.key 4096
+> openssl req -new -key myserver.key -out myserver.csr
+
+# 使用ca的证书和key，生成我们的证书
+# 这里的set_serial指明了证书的序号，如果证书过期了(365天后)，
+# 或者证书key泄漏了，需要重新发证的时候，就要加1
+> openssl x509 -req -days 365 -in myserver.csr -CA ca.crt -CAkey ca.key -set_serial 01 -out myserver.crt
+
+复制代码
+查看证书
+复制代码
+
+# 查看KEY信息
+> openssl rsa -noout -text -in myserver.key
+
+# 查看CSR信息
+> openssl req -noout -text -in myserver.csr
+
+# 查看证书信息
+> openssl x509 -noout -text -in ca.crt
+
+# 验证证书
+# 会提示self signed
+> openssl verify selfsign.crt
+
+# 因为myserver.crt 是幅ca.crt发布的，所以会验证成功
+> openssl verify -CAfile ca.crt myserver.crt
+
+复制代码
+去掉key的密码保护
+
+有时候每次都要输入密码太繁琐了,可以把Key的保护密码去掉
+
+> openssl rsa -in myserver.key -out server.key.insecure
+
+不同格式证书的转换
+
+一般证书有三种格式：
+
+    PEM(.pem) 前面命令生成的都是这种格式，
+    DER(.cer .der) Windows 上常见
+    PKCS#12文件(.pfx .p12) Mac上常见
+
+复制代码
+
+# PEM转换为DER
+> openssl x509 -outform der -in myserver.crt -out myserver.der
+
+# DER转换为PEM
+> openssl x509 -inform der -in myserver.cer -out myserver.pem
+
+# PEM转换为PKCS
+> openssl pkcs12 -export -out myserver.pfx -inkey myserver.key -in myserver.crt -certfile ca.crt
+
+# PKCS转换为PEM
+> openssl pkcs12 -in myserver.pfx -out myserver2.pem -nodes
+
+复制代码
+测试证书
+
+Openssl提供了简单的client和server工具，可以用来模拟SSL连接，做测试使用。
+复制代码
+
+# 连接到远程服务器
+> openssl s_client -connect www.google.com.hk:443
+
+# 模拟的HTTPS服务，可以返回Openssl相关信息 
+# -accept 用来指定监听的端口号 
+# -cert -key 用来指定提供服务的key和证书
+> openssl s_server -accept 443 -cert myserver.crt -key myserver.key -www
+
+# 可以将key和证书写到同一个文件中
+> cat myserver.crt myserver.key > myserver.pem
+# 使用的时候只提供一个参数就可以了
+> openssl s_server -accept 443 -cert myserver.pem -www
+
+# 可以将服务器的证书保存下来
+> openssl s_client -connect www.google.com.hk:443 </dev/null | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > remoteserver.pem
+# 转换成DER文件，就可以在Windows下直接查看了
+> openssl x509 -outform der -in remoteserver.pem -out remoteserver.cer
+
+复制代码
+计算MD5和SHA1
+
+# MD5 digest
+> openssl dgst -md5 filename
+
+# SHA1 digest
+> openssl dgst -sha1 filename
+
+
