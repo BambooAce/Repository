@@ -1,6 +1,7 @@
 #include "Csocket.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 #include <string>
 #include <string.h>
 #ifdef LINUX
