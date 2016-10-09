@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <fcntl.h>
 #define SOCKET int
 #define SOCKET_ERROR -1
 #define INVALID_SOCKET -1
@@ -23,7 +24,7 @@ public:
 	bool AddrInit(const int post, const char* addr = "Any");
 	void Listen();
 	SOCKET Accept(sockaddr_in & clientaddr);
-	void Connect();
+    void Connect();
 	void Bind();
 	void Close();
 	Csocket(const Csocket &cs);

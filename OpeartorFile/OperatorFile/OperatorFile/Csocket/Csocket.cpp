@@ -95,25 +95,69 @@ SOCKET Csocket::Accept(sockaddr_in & clientaddr)
 {
 #ifdef LINUX
 	unsigned int addrlen = sizeof(clientaddr);
+label:
+    struct timeval tval;
+    tval.tv_sec = 15;
+    tval.tv_usec = 300;
+    fd_set rfd;
+    FD_ZERO(&rfd);
+    FD_SET(sockfd, &rfd);
+    if (select(sockfd+1, &rfd, NULL, NULL, &tval) > 0)
+    {
 #else
-	int addrlen = sizeof(clientaddr);
+        int addrlen = sizeof(clientaddr);
 #endif
-	SOCKET clientfd = accept(sockfd, (sockaddr*)&clientaddr, &addrlen);
-	if(clientfd == -1)
-	{
-		Close();
-		handle_error("Accept");
-	}
-	return clientfd;
+        SOCKET clientfd = accept(sockfd, (sockaddr*)&clientaddr, &addrlen);
+        if(clientfd == -1)
+        {
+            Close();
+            handle_error("Accept");
+        }
+        return clientfd;
+#ifdef LINUX
+    }else
+    {
+        printf("Timeout\n");
+        goto label;
+    }
+#endif
 }
 
 void Csocket::Connect()
 {
+#ifdef LINUX
+	fcntl(sockfd, F_SETFL, O_NONBLOCK);
+#endif
 	if ( -1 == connect(sockfd, (const sockaddr*)&scr, sizeof(scr)))
 	{
 		Close();
 		handle_error("Connect");
 	}
+#ifdef LINUX
+    struct timeval tval;
+    tval.tv_sec = 15;
+    tval.tv_usec = 300;
+	fd_set wfd;
+	FD_ZERO(&wfd);
+	FD_SET(sockfd, &wfd);
+    if(select(sockfd + 1, NULL, &wfd, NULL, &tval) == 1)
+    {
+        int so_error;
+        socklen_t len = sizeof so_error;
+        getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &so_error, &len);
+        if(so_error == 0)
+        {
+            printf("Connect success!\n");
+        }else
+        {
+            printf("Connect fail!\n");
+            exit(1);
+        }
+    }else{
+        printf("Connect fail! Time out \n");
+        exit(1);
+    }
+#endif
 }
 
 void Csocket::Close()
