@@ -9,15 +9,15 @@ class Process
 public:
     Process();
     ~Process();
-    void InitDeamon();
-    Process CreateChildProc();
+    Process InitDeamon();
+    bool CreateChildProcAndRun(std::string &cmdline, std::string &arg);
     std::string GetCommandline();
     pid_t GetPID();
     void WaitChild(pid_t pid = 0);
+    void Run(std::string &cmd);
+    void ExitRun(Func func);
 private:
     pid_t CurPID;
-    void ChildRun();
-    void ExitRun(Func func);
     Process(Process &proc);
     Process& operator=(Process &proc);
 };

@@ -14,9 +14,16 @@ for file in $allfile
 do
 	if [ -e $file ] && [ -f $file ];then
 		cp $file ~/bin
+		fsdfsdf
+		sdfsdfsdf
 	fi
 done 
 
+
+for file in $allfile
+do
+	if [ -e $file ];then
+		cp $file ~/bin
 cd /usr/sbin
 allfile=$(ls)
 for file in $allfile
@@ -33,7 +40,6 @@ tar -czf  bin.tar.gz ./bin
 if [ -e "bin.tar.gz" ];then
 	echo "bin.tar.gz success"
 else
-	echo "bin.tar.gz fail"
 fi	
 
 if [ -e "bin.tar.gz" ];then
