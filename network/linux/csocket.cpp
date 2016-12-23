@@ -198,17 +198,22 @@ void ShowClient(int clientfd)
 }
 
 
-bool CreateUDPServer(Csocket server, unsigned short port)
+bool CreateUDPServer(Csocket &server, unsigned short port)
 {
-
+	server.Socket();
+	struct sockaddr_in seraddr;
+	seraddr.sin_addr.s_addr = htonl(INADDR_ANY);
+	seraddr.sin_family = AF_INET;
+	seraddr.sin_port = htons(port);
+	server.Bind(seraddr);
 }
 
 
-bool CreateTCPServer(Csocket server, unsigned short port)
+bool CreateTCPServer(Csocket &server, unsigned short port)
 {
     server.Socket();
     struct sockaddr_in seraddr;
-    seraddr.sin_addr.in_addr = htonl();
+    seraddr.sin_addr.s_addr = htonl(INADDR_ANY);
     seraddr.sin_family = AF_INET;
     seraddr.sin_port = htons(port);
     server.Bind(seraddr);
@@ -216,13 +221,15 @@ bool CreateTCPServer(Csocket server, unsigned short port)
 }
 
 
-bool CreateUDPClient(Csocket client, char * addr, unsigned short port)
+bool CreateUDPClient(Csocket &client, char * addr, unsigned short port)
 {
     client.Socket(false);
+	client.Connect(addr, port);
+
 }
 
 
-bool CreateTCPClient(Csocket client, char * addr, unsigned short port, int timeout)
+bool CreateTCPClient(Csocket &client, char * addr, unsigned short port, int timeout)
 {
     client.Socket();
     if(client.Connect(addr, port, timeout))

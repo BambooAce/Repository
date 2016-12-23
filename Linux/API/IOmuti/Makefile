@@ -5,4 +5,5 @@ all:
 	for src in $(SRC);do\
 			${CC} $(ARG) $$src -o $${src%.*};\
 			done
-
+clean:
+	rm selectclient	selectserver

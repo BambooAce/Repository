@@ -19,10 +19,10 @@ private:
 
 };
 
-bool CreateUDPServer(Csocket server, unsigned short port);
-bool CreateTCPServer(Csocket server, unsigned short port);
-bool CreateUDPClient(Csocket client, char *addr, unsigned short port);
-bool CreateTCPClient(Csocket client, char *addr, unsigned short port, int timeout = 0);
+bool CreateUDPServer(Csocket &server, unsigned short port);
+bool CreateTCPServer(Csocket &server, unsigned short port);
+bool CreateUDPClient(Csocket &client, char *addr, unsigned short port);
+bool CreateTCPClient(Csocket &client, char *addr, unsigned short port, int timeout = 0);
 void ShowClient(int clientfd);
 #endif // CSOCKET_H
 
