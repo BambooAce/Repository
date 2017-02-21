@@ -43,11 +43,9 @@ bool Csocket::Connect(char * addr, unsigned short port, int timeout)
         SetNONBlock();
         tval.tv_sec = timeout;
         tval.tv_usec = 100;
-        fd_set wfd, rfd;
+        fd_set wfd;
         FD_ZERO(&wfd);
-        FD_ZERO(&rfd);
         FD_SET(sockfd, &wfd);
-        FD_SET(sockfd, &rfd);
         int resconn = connect(sockfd, (const sockaddr *)&seraddr, sizeof(seraddr));
         if(resconn == 0)
         {
@@ -58,7 +56,7 @@ bool Csocket::Connect(char * addr, unsigned short port, int timeout)
         {
             if(errno == EINPROGRESS)
             {
-                int nready = select(sockfd+1, &rfd, &wfd, NULL, &tval);
+                int nready = select(sockfd+1, NULL, &wfd, NULL, &tval);
                 if(nready == -1)
                 {
                     close(sockfd);
@@ -72,7 +70,7 @@ bool Csocket::Connect(char * addr, unsigned short port, int timeout)
                 {
                     int err;
                     socklen_t len = sizeof(err);
-                    if(FD_ISSET(sockfd, &wfd) || FD_ISSET(sockfd, &rfd))
+                    if(FD_ISSET(sockfd, &wfd))
                     {
                         if(getsockopt(sockfd, SOL_SOCKET, SO_ERROR, (void *)&err, &len) == -1)
                         {

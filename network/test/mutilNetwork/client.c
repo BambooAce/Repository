@@ -26,7 +26,10 @@ int main(int argc, char *argv[])
 	inet_pton(AF_INET, argv[1], &serveraddr.sin_addr);
 	connect(fd, (struct sockaddr *)&serveraddr, sizeof(serveraddr));
 	//FILE * fp = fopen("./aa","r");
-	str_cli(stdin, fd);
+	//str_cli(fp, fd);
+	sleep(60);
+	close(fd);
+	sleep(1000);
 	exit(0);
 }
 
@@ -38,7 +41,8 @@ void str_cli(FILE * fp, int fd)
 	while (fgets(sendbuff, MAXSIZE, fp) != NULL)
 	{
 		write(fd, sendbuff, strlen(sendbuff));
-		if(read(fd, recvbuff, MAXSIZE) == 0)
+		printf("hello\n");
+		/*	if(read(fd, recvbuff, MAXSIZE) == 0)
 		{	
 			if(errno == ECONNRESET)
 			{
@@ -46,7 +50,7 @@ void str_cli(FILE * fp, int fd)
 			}
 			fprintf(stderr, "server terminated!\n");
 			exit(1);
-		}
+		}*/
 		fputs(recvbuff, stdout);
 		bzero(sendbuff, MAXSIZE);
 		bzero(recvbuff,MAXSIZE);
