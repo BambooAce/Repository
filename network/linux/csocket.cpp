@@ -22,7 +22,7 @@ inline void HandleError(std::string func)
     exit(1);
 }
 
-Csocket::Csocket():sockfd(-1)
+Csocket::Csocket():sockfd(-1),tcp(0)
 {
 }
 
@@ -145,12 +145,18 @@ bool Csocket::Bind(struct sockaddr_in &seraddr)
 int Csocket::Socket(bool TCP)
 {
     int SOCK = TCP ? SOCK_STREAM:SOCK_DGRAM;
+    tcp = TCP;
     sockfd = socket(AF_INET,SOCK, 0);
     if (-1 == sockfd)
     {
         HandleError("Socket");
     }
     return sockfd;
+}
+
+bool Csocket::bTCP()
+{
+    return tcp;
 }
 
 bool Csocket::SetNONBlock()
@@ -169,10 +175,6 @@ bool Csocket::SetNONBlock()
     return false;
 }
 
-bool Csocket::SetSock()
-{
-    return true;
-}
 
 int Csocket::GetFd()
 {
@@ -196,9 +198,9 @@ void ShowClient(int clientfd)
 }
 
 
-bool CreateUDPServer(Csocket &server, unsigned short port)
+void CreateUDPServer(Csocket &server, unsigned short port)
 {
-	server.Socket();
+    server.Socket(false);
 	struct sockaddr_in seraddr;
 	seraddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	seraddr.sin_family = AF_INET;
@@ -207,7 +209,7 @@ bool CreateUDPServer(Csocket &server, unsigned short port)
 }
 
 
-bool CreateTCPServer(Csocket &server, unsigned short port)
+void CreateTCPServer(Csocket &server, unsigned short port)
 {
     server.Socket();
     struct sockaddr_in seraddr;
@@ -219,18 +221,17 @@ bool CreateTCPServer(Csocket &server, unsigned short port)
 }
 
 
-bool CreateUDPClient(Csocket &client, char * addr, unsigned short port)
+void CreateUDPClient(Csocket &client, char * addr, unsigned short port, RunFun runfun)
 {
     client.Socket(false);
-	client.Connect(addr, port);
-
+    runfun(client, addr, port);
 }
 
-
-bool CreateTCPClient(Csocket &client, char * addr, unsigned short port, int timeout)
+void CreateTCPClient(Csocket &client, char * addr, unsigned short port, RunFun runfun, int timeout)
 {
     client.Socket();
     if(client.Connect(addr, port, timeout))
-        return true;
-    return false;
+    {
+        runfun(client, addr, port);
+    }
 }
