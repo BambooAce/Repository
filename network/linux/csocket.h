@@ -1,6 +1,7 @@
 #ifndef CSOCKET_H
 #define CSOCKET_H
 struct sockaddr_in;
+typedef enum {W, R}TYPE;
 class Csocket
 {
 public:
@@ -14,17 +15,14 @@ public:
     bool bTCP();
     //socket file option. SOL_SOCKET
     bool SetNONBlock();
-    bool SetSockBroadcast();
     bool SetSockKeepAlive();
-    bool SetSockLingen();
-    bool SetSockBuf(int type, int size);
-    bool SetSockLowat(int type, int size);
-    bool SetSockTimeout(int type, int time);
+    bool SetSockLinger();
+    bool SetSockBuf(TYPE type, int size);
+    bool SetSockLowat(TYPE type, int size);
+    bool SetSockTimeout(TYPE type, int time);
     bool SetSockReuseaddr();
     //IPv4 options IPPROTO_IP
-    bool SetSockIPHead();
     //TCP options IPPROTO_TCP
-    bool SetSockMSS();
     bool SetSockNagle();
     int Shutdown(int how);
     int GetFd();

@@ -175,6 +175,83 @@ bool Csocket::SetNONBlock()
     return false;
 }
 
+bool Csocket::SetSockKeepAlive()
+{
+   if(tcp)
+   {
+       int time = 3600;
+       int res = setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPALIVE, (void *)&time, sizeof(time));
+       return res == 0? true:false;
+   }
+   return false;
+}
+
+bool Csocket::SetSockLinger()
+{
+    if(tcp)
+    {
+        struct linger lin;
+        lin.l_linger = 2;
+        lin.l_onoff = 1;
+        int res = setsockopt(sockfd, SOL_SOCKET, SO_LINGER, (void *)&lin, sizeof(lin));
+        return res == 0? true:false;
+    }
+    return false;
+}
+
+bool Csocket::SetSockBuf(TYPE type, int size)
+{
+    int res = 0;
+    if(type == W && 0 > size)
+        res = setsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, (void *)&size, sizeof(size));
+    if(type == R && 0 > size)
+        res = setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, (void *)&size, sizeof(size));
+    return res == 0 ? true:false;
+}
+
+bool Csocket::SetSockLowat(TYPE type, int size)
+{
+    int res = 0;
+    if(type == W && 0 > size)
+        res = setsockopt(sockfd, SOL_SOCKET, SO_SNDLOWAT, (void *)&size, sizeof(size));
+    if(type == R && 0 > size)
+        res = setsockopt(sockfd, SOL_SOCKET, SO_RCVLOWAT, (void *)&size, sizeof(size));
+    return res == 0 ? true:false;
+}
+
+bool Csocket::SetSockTimeout(TYPE type, int time)
+{
+    struct timeval tval;
+    tval.tv_sec = time;
+    tval.tv_usec = 10;
+    int res = 0;
+    if(type == W && 0 > time)
+        res = setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, (void *)&tval, sizeof(tval));
+    if(type == R && 0 > time)
+        res = setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (void *)&tval, sizeof(tval));
+    return res == 0 ? true:false;
+}
+
+bool Csocket::SetSockReuseaddr()
+{
+    if(tcp)
+    {
+        int reuse = 1;
+        int res = setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, (void *)&reuse, sizeof(reuse));
+        return res == 0? true:false;
+    }
+    return false;
+}
+
+bool Csocket::SetSockNagle()
+{
+    if(tcp)
+    {
+        int ng = 1;
+        int res = setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, (void *)&ng, sizeof(ng));
+    }
+}
+
 
 int Csocket::GetFd()
 {
