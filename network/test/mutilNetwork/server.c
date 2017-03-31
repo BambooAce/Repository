@@ -14,8 +14,8 @@ int main()
 {
 	int fd = socket(AF_INET, SOCK_STREAM, 0);
 	struct sockaddr_in serveraddr, clientaddr;
-	//serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	inet_aton("15.15.182.182",&serveraddr.sin_addr);
+	serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
+	//inet_aton("15.15.182.182",&serveraddr.sin_addr);
 	serveraddr.sin_family = AF_INET;
 	serveraddr.sin_port = htons(PORT);
 	bind(fd,(const struct sockaddr *)&serveraddr, sizeof(serveraddr));
@@ -23,7 +23,7 @@ int main()
 	socklen_t len = sizeof(clientaddr);
 	for(;;)
 	{
-		int clientfd = accept(fd, (struct sockaddr *)&clientaddr, &len);
+	//	int clientfd = accept(fd, (struct sockaddr *)&clientaddr, &len);
 	/*	if(fork() == 0)
 		{
 			close(fd);
@@ -31,7 +31,8 @@ int main()
 			exit(0);
 		}
 		*/
-		close(clientfd);
+	//	close(clientfd);
+		sleep(3);
 	}
 	return 0;
 }
