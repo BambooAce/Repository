@@ -5,8 +5,10 @@ CONFIG -= qt
 
 SOURCES += main.cpp \
     fileserver.cpp \
-    fileclient.cpp
+    fileclient.cpp \
+    msgitem.cpp
 
 HEADERS += \
     fileserver.h \
-    fileclient.h
+    fileclient.h \
+    msgitem.h
