@@ -1,7 +1,0 @@
-14:12:26.513960 00:0c:29:61:1a:9b (oui Unknown) > 00:0c:29:c9:00:60 (oui Unknown), ethertype IPv4 (0x0800), length 74: (tos 0x0, ttl 64, id 9905, offset 0, flags [DF], proto TCP (6), length 60)
-		    192.168.1.2.56079 > 192.168.1.10.6666: Flags [S], cksum 0xa9e4 (correct), seq 4199008720, win 29200, options [mss 1460,sackOK,TS val 1765217 ecr 0,nop,wscale 7], length 0
-			14:12:26.514225 00:0c:29:c9:00:60 (oui Unknown) > 00:0c:29:61:1a:9b (oui Unknown), ethertype IPv4 (0x0800), length 74: (tos 0x0, ttl 64, id 0, offset 0, flags [DF], proto TCP (6), length 60)
-		    192.168.1.10.6666 > 192.168.1.2.56079: Flags [S.], cksum 0xfe93 (correct), seq 41519603, ack 4199008721, win 28960, options [mss 1460,sackOK,TS val 4136836 ecr 1765217,nop,wscale 7], length 0
-			14:12:26.514299 00:0c:29:61:1a:9b (oui Unknown) > 00:0c:29:c9:00:60 (oui Unknown), ethertype IPv4 (0x0800), length 66: (tos 0x0, ttl 64, id 9906, offset 0, flags [DF], proto TCP (6), length 52)
-		    192.168.1.2.56079 > 192.168.1.10.6666: Flags [.], cksum 0x9d9b (correct), seq 1, ack 1, win 229, options [nop,nop,TS val 1765217 ecr 4136836], length 0
-
