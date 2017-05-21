@@ -112,34 +112,30 @@ bool MsgItem::isUpload() const
     return upload;
 }
 
-std::string MsgItem::createPutMsg(int msg_len, int file_size, std::string md5_value, std::string file_name)
+std::string MsgItem::createPutMsg(int file_size, std::string md5_value, std::string file_name)
 {
-    std::string msg;
-    msglen = msg_len;
+    char msg[256] = {0};
     filesize = file_size;
     md5value = md5_value;
     filename = file_name;
-    msg << "msglen:" <<msglen<<"\n"<<"PUT:"<<filename<<"\n"<<"MD5:"<<md5value<<"\n"<<"SIZE:"<<filesize<<"\n";
-    return msg;
+    sprintf(msg,"msglen:%d\nPUT:%s\nMD5:%s\nSIZE:%d\n", msg_len, file_name.c_str(), md5_value.c_str(), file_size);
+    return std::string(msg);
 }
 
-std::string MsgItem::createGetMsg(int msg_len, std::string file_name)
+std::string MsgItem::createGetMsg(std::string file_name)
 {
-    std::string msg;
+    char msg[256] = {0};
     msglen = msg_len;
     filename = file_name;
-    msg<< "msglen:"<<msglen <<"\n"<<"GET:"<<filename<<"\n";
-    return msg;
+    sprintf(msg,"msglen:%d\nGET:%s\n", msg_len, file_name.c_str());
+    return std::string(msg);
 }
 
 int main()
 {
-  //  char msg[] ="msglen:50\nPUT:filename\nMD5:345efj48384\nSIZE:123485\n";
-    //char msg[] ="msglen:50\nGET:filename\nMD5:dfsdfsdfdfsdf\nSIZE:234234\n";
     MsgItem mi;
-    std::string test = mi.createGetMsg(32, "update.ini");
-    test.
+    std::string test = mi.createGetMsg("update.ini");
+    std::cout << test << std::endl;
     //mi.parseline(test.c_str());
-    std::cout<<"FileName: "<<mi.getFilename() << "\nFileSize: "<<mi.getFileSize()<<"\nMD5Value: "<< mi.getMD5Value() << "\nMsglen: "<<mi.getMsglen() <<std::endl;
     return 0;
 }

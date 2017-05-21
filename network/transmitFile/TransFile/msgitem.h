@@ -15,7 +15,7 @@ public:
     std::string getFilename() const;
     void parseline(char *msg);
     bool isUpload() const;
-    std::string createPutMsg(int msg_len, int file_size, std::string md5_value, std::string file_name);
+    std::string createPutMsg(int file_size, std::string md5_value, std::string file_name);
     std::string createGetMsg(int msg_len, std::string file_name);
 private:
     int msglen;
