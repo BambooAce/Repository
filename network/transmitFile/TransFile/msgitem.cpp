@@ -102,6 +102,7 @@ void MsgItem::parseline(const char *msg)
         len = (int)(line - msg) + 1;
     }
     free(freemsg);
+    freemsg = NULL;
 }
 
 bool MsgItem::isUpload() const

@@ -4,16 +4,13 @@
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
-HandleStream::HandleStream()
-{
-}
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
-HandleStream::~HandleStream()
-{
-
-}
-
-std::string HandleStream::calMD5(char *path)
+std::string calMD5(char *path)
 {
     FILE *fp = fopen(path, "rb");
     if(!fp)
@@ -47,7 +44,7 @@ std::string HandleStream::calMD5(char *path)
     return std::string(md5str);
 }
 
-int HandleStream::readn(int fd, char *buf, int size)
+int readn(int fd, char *buf, int size)
 {
     int ready, left, n = 0;
     left = size;
@@ -68,7 +65,7 @@ int HandleStream::readn(int fd, char *buf, int size)
     return n;
 }
 
-int HandleStream::writen(int fd, char *buf, int size)
+int writen(int fd, char *buf, int size)
 {
     int ready, left, n = 0;
     left = size;
@@ -89,4 +86,40 @@ int HandleStream::writen(int fd, char *buf, int size)
     return n;
 }
 
-
+std::string getIPaddr(std::string url)
+{
+    if(url.empty())
+        return "";
+    int status = 0;
+    struct addrinfo hints, *res, *p;
+    const char * urladdr = url.c_str();
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    if((status = getaddrinfo(urladdr, NULL, &hints, &res)) != 0)
+    {
+        fprintf(stderr, "%s\n", gai_strerror(status));
+        return "";
+    }
+    void *addr;
+    char buf[128] = {0};
+    socklen_t len;
+    for(p = res; p != NULL; p = p->ai_next)
+    {
+        if(p->ai_family == AF_INET)
+        {
+            struct sockaddr_in * addripv4 = (struct sockaddr_in *)(p->ai_addr);
+            addr = &(addripv4->sin_addr);
+            len = INET_ADDRSTRLEN;
+        }
+        else if(p->ai_family == AF_INET6)
+        {
+            struct sockaddr_in6 * addripv6 = (struct sockaddr_in6 *)(p->ai_addr);
+            addr = &(addripv6->sin6_addr);
+            len = INET6_ADDRSTRLEN;
+        }
+        inet_ntop(p->ai_family, addr, buf, len);
+        break;
+    }
+    freeaddrinfo(res);
+    return std::string(buf);
+}
