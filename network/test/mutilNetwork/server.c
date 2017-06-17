@@ -23,7 +23,7 @@ int main()
 	socklen_t len = sizeof(clientaddr);
 	for(;;)
 	{
-	//	int clientfd = accept(fd, (struct sockaddr *)&clientaddr, &len);
+		int clientfd = accept(fd, (struct sockaddr *)&clientaddr, &len);
 	/*	if(fork() == 0)
 		{
 			close(fd);

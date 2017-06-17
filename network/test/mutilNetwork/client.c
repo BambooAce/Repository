@@ -47,13 +47,11 @@ int main(int argc, char *argv[])
 //    }
 	//FILE * fp = fopen("./aa","r");
 	//str_cli(fp, fd);
-	signal(SIGPIPE, doit);
-    if(errno == ENETUNREACH)
-    {
-        printf("server can't reach\n");
-    }
-	str_cli(fd);
-	sleep(600);
+	//str_cli(fd);
+	while(1)
+	{
+		sleep(6);
+	}
 	close(fd);
 	exit(0);
 }

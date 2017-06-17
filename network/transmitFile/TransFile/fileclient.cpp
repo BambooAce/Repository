@@ -13,6 +13,7 @@
 #include <fcntl.h>
 #include <sys/time.h>
 #include <errno.h>
+#include <stdlib.h>
 
 #define FormatError(error) do{ \
         fprintf(stderr, error); \
@@ -24,16 +25,6 @@ enum {
     PUT,
     GET
 };
-
-void * connectServer(void *arg)
-{
-
-}
-
-void * calFileMD5(void *arg)
-{
-
-}
 
 FileClient::FileClient(std::string url, int iport):urladd(url), port(iport)
 {
@@ -61,8 +52,8 @@ std::string FileClient::setHeader(int mode, std::string filename, int filesize, 
     {
         if(!filename.empty())
             return msg.createGetMsg(filename);
-    }else
-        return "";
+    }
+    return "";
 }
 
 bool FileClient::connServer()
@@ -98,7 +89,7 @@ bool FileClient::connServer()
         {
             return true;
         }
-        if(errno = EINTR)
+        if(errno == EINTR)
         {
             continue;
         }
@@ -118,11 +109,11 @@ bool FileClient::connServer()
                 fprintf(stderr, "Connect server timeout\n");
                 _exit(1);
             }
-            if(FD_ISSET(clifd, &rfd))
+            if(FD_ISSET(clifd, &wfd))
             {
                 int err;
-                len = sizeof(err);
-                if(getsockopt(sockfd, SOL_SOCKET, SO_ERROR, (void *)&err, &len) == -1)
+                socklen_t len = sizeof(err);
+                if(getsockopt(clifd, SOL_SOCKET, SO_ERROR, (void *)&err, &len) == -1)
                 {
                     fprintf(stderr, "getsockopt failed\n");
                     _exit(1);
@@ -141,38 +132,69 @@ bool FileClient::connServer()
 
 void FileClient::sendHeader(std::string header)
 {
+    char buff[256] = {0};
+    const char * str = header.c_str();
+    memcpy(buff, str, strlen(str));
     if(clifd)
     {
-        writen(clifd, buff, size)
+        writen(clifd, buff, strlen(buff));
     }
 }
 
-
-int main(int argc, char *argv[])
+void FileClient::sendFile(char *filepath)
 {
-    if(argc != 4)
+    FILE *fp = fopen(filepath, "rb");
+    if(fp)
     {
-        FormatError("Format : fileclient PUT/GET filename serverIP\n");
+        while(!feof(fp)){
+            char buff[1024*2] = {0};
+            int size = fread(buff, 1024, 2, fp);
+            writen(clifd, buff, size);
+        }
+        fclose(fp);
     }
-    int mode = 0;
-    if(strcmp(argv[1], "PUT") == 0 || strcmp(argv[1], "put") == 0)
-        mode = 0;
-    else if(strcmp(argv[1], "GET") == 0 || strcmp(argv[1], "get") == 0)
-        mode = 1;
-    else{
-        FormatError("Format : fileclient PUT/GET filename serverIP\n");
-    }
-    if((access(argv[2], F_OK) == 0) && mode)
-    {
-        FormatError("File exist\n");
-    }else if((access(argv[2], F_OK) == -1) && !mode)
-    {
-        FormatError("File not exist\n");
-    }
-//    create thread cal file md5
-//    main thread client connect server.
-    FileClient client;
-    client.connect();
-    client.setHeader(mode, )
-    return 0;
 }
+
+void FileClient::recvFile(char *filepath)
+{
+    FILE *fp = fopen(filepath, "wb");
+    if(fp)
+    {
+        while(!feof(fp)){
+            char buff[1024*2] = {0};
+            int size = readn(clifd, buff, 2048);
+            fwrite(buff, size, 1, fp);
+        }
+        fclose(fp);
+    }
+}
+
+
+//int main(int argc, char *argv[])
+//{
+//    if(argc != 4)
+//    {
+//        FormatError("Format : fileclient PUT/GET filename serverIP\n");
+//    }
+//    int mode = 0;
+//    if(strcmp(argv[1], "PUT") == 0 || strcmp(argv[1], "put") == 0)
+//        mode = 0;
+//    else if(strcmp(argv[1], "GET") == 0 || strcmp(argv[1], "get") == 0)
+//        mode = 1;
+//    else{
+//        FormatError("Format : fileclient PUT/GET filename serverIP\n");
+//    }
+//    if((access(argv[2], F_OK) == 0) && mode)
+//    {
+//        FormatError("File exist\n");
+//    }else if((access(argv[2], F_OK) == -1) && !mode)
+//    {
+//        FormatError("File not exist\n");
+//    }
+////    create thread cal file md5
+////    main thread client connect server.
+//    FileClient client;
+//    client.connect();
+//    client.setHeader(mode, )
+//    return 0;
+//}
