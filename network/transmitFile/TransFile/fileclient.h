@@ -7,7 +7,7 @@ class FileClient
 public:
     FileClient(std::string url, int iport);
     ~FileClient();
-    std::string setHeader(int mode, std::string filename, int filesize = 0, std::string md5 = "");
+    std::string setHeader(int mode, std::string &filename, int filesize = 0, std::string md5 = "");
     bool connServer();
     void sendHeader(std::string header);
     void sendFile(char *filepath);

@@ -14,13 +14,7 @@
 #include <sys/time.h>
 #include <errno.h>
 #include <stdlib.h>
-
-#define FormatError(error) do{ \
-        fprintf(stderr, error); \
-        return 1; \
-    }while(0)
-
-
+#include <iostream>
 enum {
     PUT,
     GET
@@ -42,7 +36,7 @@ FileClient::~FileClient()
         close(clifd);
 }
 
-std::string FileClient::setHeader(int mode, std::string filename, int filesize, std::string md5)
+std::string FileClient::setHeader(int mode, std::string &filename, int filesize, std::string md5)
 {
     if(mode == PUT)
     {
@@ -61,8 +55,13 @@ bool FileClient::connServer()
     if(urladd.empty())
         return false;
     std::string ipaddr = getIPaddr(urladd);
+    if(ipaddr.empty())
+    {
+        fprintf(stderr, "Get Server IP failed\n");
+        return false;
+    }
     struct sockaddr_in seraddr;
-    seraddr.sin_port = htons(7682);
+    seraddr.sin_port = htons(port);
     seraddr.sin_family = AF_INET;
     inet_aton(ipaddr.c_str(), &seraddr.sin_addr);
     struct timeval tval;
@@ -168,33 +167,3 @@ void FileClient::recvFile(char *filepath)
         fclose(fp);
     }
 }
-
-
-//int main(int argc, char *argv[])
-//{
-//    if(argc != 4)
-//    {
-//        FormatError("Format : fileclient PUT/GET filename serverIP\n");
-//    }
-//    int mode = 0;
-//    if(strcmp(argv[1], "PUT") == 0 || strcmp(argv[1], "put") == 0)
-//        mode = 0;
-//    else if(strcmp(argv[1], "GET") == 0 || strcmp(argv[1], "get") == 0)
-//        mode = 1;
-//    else{
-//        FormatError("Format : fileclient PUT/GET filename serverIP\n");
-//    }
-//    if((access(argv[2], F_OK) == 0) && mode)
-//    {
-//        FormatError("File exist\n");
-//    }else if((access(argv[2], F_OK) == -1) && !mode)
-//    {
-//        FormatError("File not exist\n");
-//    }
-////    create thread cal file md5
-////    main thread client connect server.
-//    FileClient client;
-//    client.connect();
-//    client.setHeader(mode, )
-//    return 0;
-//}

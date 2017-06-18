@@ -17,9 +17,10 @@
 #include <string>
 #include <iostream>
 #include <iterator>
-
+#include <mysql/mysql.h>
 #define GET "GET:"
 #define PUT "PUT:"
+
 FileServer::FileServer():serverfd(-1), port(0)
 {
     getmd5("./md5file");

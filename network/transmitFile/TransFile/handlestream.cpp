@@ -9,6 +9,8 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sys/stat.h>
+#include <iostream>
 
 std::string calMD5(char *path)
 {
@@ -88,6 +90,7 @@ int writen(int fd, char *buf, int size)
 
 std::string getIPaddr(std::string url)
 {
+    fprintf(stderr, "%s\n", url.c_str());
     if(url.empty())
         return "";
     int status = 0;
@@ -95,6 +98,7 @@ std::string getIPaddr(std::string url)
     const char * urladdr = url.c_str();
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE;
     if((status = getaddrinfo(urladdr, NULL, &hints, &res)) != 0)
     {
         fprintf(stderr, "%s\n", gai_strerror(status));
@@ -122,4 +126,24 @@ std::string getIPaddr(std::string url)
     }
     freeaddrinfo(res);
     return std::string(buf);
+}
+
+int getSize(char *path)
+{
+    struct stat filestat;
+    int status = stat(path, &filestat);
+    if(status == 0)
+    {
+        return filestat.st_size;
+    }
+    return -1;
+}
+
+std::string parseFilename(char *path)
+{
+    std::string temp(path);
+    size_t pos = temp.find_last_of('/');
+    if(pos == std::string::npos)
+        return temp;
+    return temp.substr(pos+1, temp.length());
 }
