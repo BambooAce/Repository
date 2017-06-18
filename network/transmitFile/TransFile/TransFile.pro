@@ -6,9 +6,11 @@ CONFIG -= qt
 SOURCES += main.cpp \
     fileserver.cpp \
     fileclient.cpp \
-    msgitem.cpp
+    msgitem.cpp \
+    handlestream.cpp
 
 HEADERS += \
     fileserver.h \
     fileclient.h \
-    msgitem.h
+    msgitem.h \
+    handlestream.h
