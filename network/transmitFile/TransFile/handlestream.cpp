@@ -28,7 +28,6 @@ std::string calMD5(char *path)
     char buff[1024*1024] = {0};
     int ready = 0;
     MD5_Init(&md5);
-    printf("hello\n");
     while(!feof(fp))
     {
         ready = fread(buff, 1024, 1024, fp);
@@ -96,9 +95,9 @@ std::string getIPaddr(std::string url)
     int status = 0;
     struct addrinfo hints, *res, *p;
     const char * urladdr = url.c_str();
+	memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_PASSIVE;
     if((status = getaddrinfo(urladdr, NULL, &hints, &res)) != 0)
     {
         fprintf(stderr, "%s\n", gai_strerror(status));

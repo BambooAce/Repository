@@ -55,6 +55,7 @@ bool FileClient::connServer()
     if(urladd.empty())
         return false;
     std::string ipaddr = getIPaddr(urladd);
+	std::cout << ipaddr << std::endl;
     if(ipaddr.empty())
     {
         fprintf(stderr, "Get Server IP failed\n");
@@ -106,7 +107,8 @@ bool FileClient::connServer()
             if(ready == 0)
             {
                 fprintf(stderr, "Connect server timeout\n");
-                _exit(1);
+				return false;
+               // _exit(1);
             }
             if(FD_ISSET(clifd, &wfd))
             {
@@ -120,7 +122,15 @@ bool FileClient::connServer()
                 if(err == 0)
                 {
                     return true;
-                }
+                }else if(err == ECONNREFUSED)
+				{
+					fprintf(stderr, "Server no listenning\n");
+					return false;
+				}else if(err == ENETUNREACH)
+				{
+					fprintf(stderr, "Network can`t reach\n");
+					return false;
+				}
                 else
                     return false;
             }

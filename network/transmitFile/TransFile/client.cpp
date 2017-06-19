@@ -2,8 +2,11 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
+#include <iostream>
 #include "fileclient.h"
 #include "handlestream.h"
+bool Isconn = false;
+std::string header = "";
 
 #define FormatError(error) do{ \
     fprintf(stderr, error); \
@@ -26,22 +29,18 @@ int main(int argc, char *argv[])
     FileClient *client = new FileClient(argv[3], 7682);
     ARGS arg = {client, argv[2]};
     pthread_t conn, cal;
-    bool *Isconn = 0;
-    std::string *header = 0;
-    std::string msg;
     pthread_create(&conn, NULL, gotoconn, &arg);
     if(!mode){
         pthread_create(&cal, NULL, gotogetMD5, &arg);
-        pthread_join(cal, (void **)&header);
+        pthread_join(cal, NULL);
     }else{
         std::string filename = parseFilename(argv[2]);
-        msg = client->setHeader(mode, filename);
+        header = client->setHeader(mode, filename);
     }
-    pthread_join(conn, (void **)&Isconn);
+    pthread_join(conn, NULL);
     if(Isconn)
     {
-        std::string sstr = mode ? msg : *header;
-        client->sendHeader(sstr);
+        client->sendHeader(header);
         sleep(10);
     }
     return 0;
@@ -50,8 +49,8 @@ int main(int argc, char *argv[])
 void *gotoconn(void *arg)
 {
     ARGS *cliarg = (ARGS *)arg;
-    bool conned = cliarg->fclient->connServer();
-    pthread_exit(&conned);
+    Isconn = cliarg->fclient->connServer();
+    return 0;
 }
 
 void *gotogetMD5(void *arg)
@@ -60,8 +59,8 @@ void *gotogetMD5(void *arg)
     std::string md5 = calMD5(cliarg->mge);
     int size = getSize(cliarg->mge);
     std::string filename = parseFilename(cliarg->mge);
-    std::string msg = cliarg->fclient->setHeader(0, filename, size, md5);
-    pthread_exit(&msg);
+    header = cliarg->fclient->setHeader(0, filename, size, md5);
+	return 0;
 }
 
 int parse_format(int argc, char *argv[])
