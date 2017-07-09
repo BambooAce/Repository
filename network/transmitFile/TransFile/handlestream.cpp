@@ -146,3 +146,9 @@ std::string parseFilename(char *path)
         return temp;
     return temp.substr(pos+1, temp.length());
 }
+
+
+int parse_ini(char *inipath, INI *inistruct)
+{
+
+}

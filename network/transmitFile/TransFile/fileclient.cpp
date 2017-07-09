@@ -23,6 +23,11 @@ enum {
 FileClient::FileClient(std::string url, int iport):urladd(url), port(iport)
 {
     clifd = socket(AF_INET, SOCK_STREAM, 0);
+    struct linger lg;
+    lg.l_onoff = 1;
+    lg.l_linger = 5;
+    socklen_t len = sizeof(lg);
+    setsockopt(clifd, SOL_SOCKET, SO_LINGER, &lg, len);
     if(clifd <= 0)
     {
         fprintf(stderr, "socket function fail\n");
@@ -33,7 +38,7 @@ FileClient::FileClient(std::string url, int iport):urladd(url), port(iport)
 FileClient::~FileClient()
 {
     if(clifd > 0)
-        close(clifd);
+        shutdown(clifd, SHUT_WR);
 }
 
 std::string FileClient::setHeader(int mode, std::string &filename, int filesize, std::string md5)
@@ -150,9 +155,8 @@ void FileClient::sendHeader(std::string header)
     }
 }
 
-void FileClient::sendFile(char *filepath)
+void FileClient::sendFile(FILE *fp)
 {
-    FILE *fp = fopen(filepath, "rb");
     if(fp)
     {
         while(!feof(fp)){
@@ -164,9 +168,8 @@ void FileClient::sendFile(char *filepath)
     }
 }
 
-void FileClient::recvFile(char *filepath)
+void FileClient::recvFile(FILE *fp)
 {
-    FILE *fp = fopen(filepath, "wb");
     if(fp)
     {
         while(!feof(fp)){
