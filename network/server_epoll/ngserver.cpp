@@ -131,6 +131,7 @@ int InfoServer::bind_socket()
     {
         HandleError("setsockopt failed\n");
     }
+    set_noblock(serfd);
     listen(serfd, BACKLOG);
     return serfd;
 }
