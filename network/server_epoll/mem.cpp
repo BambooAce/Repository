@@ -76,6 +76,7 @@ bool MEM::pushData(char *data, int len)
                 }
                 free(beginpoint);
                 beginpoint = newbegin;
+		size *= 2;
             }else{
                 fprintf(stderr, "System memory is not enough.\n");
 				pthread_mutex_unlock(&mutex);
@@ -128,15 +129,17 @@ void MEM::erase(char *data, int len)
 void MEM::popDataMap(char *data, int &len)
 {
     pthread_mutex_lock(&mutex);
-    if(memmap.size()){
-        len = memmap.back().len;
-        if(len < 1024)
-            memcpy(data, memmap.back().point, len);
-        else
-            len = 0;
-        erase(memmap.back().point, len);
-    }else{
-        len = 0;
+    if(datanum){
+	    if(memmap.size()){
+		len = memmap.back().len;
+		if(len < 1024)
+		    memcpy(data, memmap.back().point, len);
+		else
+		    len = 0;
+		erase(memmap.back().point, len);
+	    }else{
+		len = 0;
+	    }
     }
     pthread_mutex_unlock(&mutex);
 }
