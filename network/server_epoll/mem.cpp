@@ -21,7 +21,7 @@
  * @brief MEM::MEM
  * @param _size
  */
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /**
  * @brief MEM::MEM
@@ -39,9 +39,9 @@ MEM::MEM(int _size):size(_size), datanum(0), freemem(_size), beginpoint(0), curp
 bool MEM::init()
 {
     beginpoint = (char *)malloc(size);
-    bzero(beginpoint, size);
     if(beginpoint)
     {
+        memset(beginpoint, 0, size);
         curpoint = beginpoint;
         return true;
     }
@@ -57,15 +57,15 @@ bool MEM::init()
  */
 bool MEM::pushData(char *data, int len)
 {
+    pthread_mutex_lock(&mutex);
     if(data && (len >= 0))
     {
-        pthread_mutex_lock(&mutex);
         if(len > freemem){
             // resize mem pool
             char * newbegin = (char *)malloc(size*2);
             if(newbegin)
             {
-                bzero(newbegin, size*2);
+                memset(newbegin, 0, size*2);
                 memcpy(newbegin, beginpoint, datanum);
                 freemem = size*2 - datanum;
                 curpoint = newbegin + datanum;
@@ -76,7 +76,7 @@ bool MEM::pushData(char *data, int len)
                 }
                 free(beginpoint);
                 beginpoint = newbegin;
-		size *= 2;
+                size *= 2;
             }else{
                 fprintf(stderr, "System memory is not enough.\n");
 				pthread_mutex_unlock(&mutex);
@@ -84,7 +84,7 @@ bool MEM::pushData(char *data, int len)
             }
         }
         //put data into mem pool, and modify curporint freesize, update locmap
-        if(memcpy(curpoint, data, len))
+        if(memmove(curpoint, data, len))
         {
             LOCMAP loc(curpoint, len);
             curpoint += len;
@@ -94,8 +94,8 @@ bool MEM::pushData(char *data, int len)
 			pthread_mutex_unlock(&mutex);
             return true;
         }
-        pthread_mutex_unlock(&mutex);
     }
+    pthread_mutex_unlock(&mutex);
     return false;
 }
 
@@ -126,22 +126,30 @@ void MEM::erase(char *data, int len)
  * @param len
  * pop into data from mem pool and erase data.
  */
-void MEM::popDataMap(char *data, int &len)
+bool MEM::popDataMap(char *data, int &len)
 {
     pthread_mutex_lock(&mutex);
-    if(datanum){
-	    if(memmap.size()){
-		len = memmap.back().len;
-		if(len < 1024)
-		    memcpy(data, memmap.back().point, len);
-		else
-		    len = 0;
-		erase(memmap.back().point, len);
-	    }else{
-		len = 0;
-	    }
+    if(datanum)
+    {
+        if(memmap.size()){
+            len = memmap.back().len;
+            if(len){
+                memcpy(data, memmap.back().point, len);
+                erase(memmap.back().point, len);
+            }
+            else{
+                len = 0;
+                pthread_mutex_unlock(&mutex);
+                return false;
+            }
+            pthread_mutex_unlock(&mutex);
+            return true;
+        }else{
+            len = 0;
+        }
     }
     pthread_mutex_unlock(&mutex);
+    return false;
 }
 
 /**
