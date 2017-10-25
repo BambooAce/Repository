@@ -19,7 +19,7 @@ public:
     MEM(int _size);
     bool init();
     bool pushData(char * data, int len);
-    void popDataMap(char *data, int &len);
+    bool popDataMap(char *data, int &len);
     void erase(char *data, int len);
     bool isEmpty();
     ~MEM();
@@ -33,5 +33,4 @@ private:
 };
 
 #endif // MEM_H
-
 
