@@ -135,17 +135,15 @@ bool MEM::popDataMap(char *data, int &len)
             len = memmap.back().len;
             if(len){
                 memcpy(data, memmap.back().point, len);
-                erase(memmap.back().point, len);
+            	erase(memmap.back().point, len);
             }
             else{
                 len = 0;
-                pthread_mutex_unlock(&mutex);
-                return false;
+            	pthread_mutex_unlock(&mutex);
+				return false;
             }
             pthread_mutex_unlock(&mutex);
             return true;
-        }else{
-            len = 0;
         }
     }
     pthread_mutex_unlock(&mutex);
